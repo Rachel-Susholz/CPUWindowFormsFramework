@@ -27,7 +27,7 @@ namespace CPUWindowFormsFramework
             lst.DisplayMember = lst.Name.Substring(3);
             lst.DataBindings.Add("SelectedValue", targetdt, lst.ValueMember, false, DataSourceUpdateMode.OnPropertyChanged);
         }
-        public static void SetControlBinding(Control ctrl, DataTable dt)
+        public static void SetControlBinding(Control ctrl, BindingSource bindsource)
         {
             string propertyname = "";
             string columnname = "";
@@ -41,7 +41,7 @@ namespace CPUWindowFormsFramework
 
             if (propertyname != "" && columnname != "")
             {
-                ctrl.DataBindings.Add(propertyname, dt, columnname, true, DataSourceUpdateMode.OnPropertyChanged);
+                ctrl.DataBindings.Add(propertyname, bindsource, columnname, true, DataSourceUpdateMode.OnPropertyChanged);
             }
 
         }
