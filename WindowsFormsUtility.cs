@@ -90,18 +90,6 @@ namespace CPUWindowFormsFramework
             grid.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
             grid.DefaultCellStyle.Font = new Font("Segoe UI", 10, FontStyle.Regular);
         }
-
-        public static void AddDeleteButtonToGrid(DataGridView grid, string deleteColumnName)
-        {
-            grid.Columns.Add(new DataGridViewButtonColumn()
-            {
-                Text = "X",
-                HeaderText = "Delete",
-                Name = deleteColumnName,
-                UseColumnTextForButtonValue = true
-            });
-        }
-
         public static void SetListBinding(ComboBox lst, DataTable sourcedt, DataTable targetdt, string tablename)
         {
             lst.DataSource = sourcedt;
@@ -138,6 +126,43 @@ namespace CPUWindowFormsFramework
             grid.Columns.Insert(0, c);
         }
 
+        public static void AddDeleteButtonToGrid(DataGridView grid, string deleteColumnName)
+        {
+            var col = new DataGridViewButtonColumn
+            {
+                Name = deleteColumnName,
+                HeaderText = "Delete",
+                UseColumnTextForButtonValue = true,
+                Text = "X",
+                FlatStyle = FlatStyle.Flat
+            };
+            grid.Columns.Add(col);
+
+            grid.DataBindingComplete += (s, e) =>
+            {
+                if (!grid.Columns.Contains(deleteColumnName)) return;
+                foreach (DataGridViewColumn c in grid.Columns)
+                    if (c.Name.EndsWith("Id", StringComparison.Ordinal))
+                        c.Visible = false;
+                foreach (DataGridViewRow row in grid.Rows)
+                {
+                    var cell = row.Cells[deleteColumnName];
+                    bool unsaved = row.IsNewRow
+                        || ((row.DataBoundItem as DataRowView)?.Row.RowState
+                            == DataRowState.Added);
+
+                    cell.ReadOnly = unsaved;
+                    cell.Style.BackColor = unsaved
+                        ? SystemColors.Control
+                        : grid.DefaultCellStyle.BackColor;
+                    cell.Style.ForeColor = unsaved
+                        ? Color.Gray
+                        : grid.DefaultCellStyle.ForeColor;
+                }
+                grid.Columns[deleteColumnName].DisplayIndex =
+                    grid.Columns.Count - 1;
+            };
+        }
         public static void SetUpNav(ToolStrip ts)
         {
             ts.Items.Clear();
